@@ -1,0 +1,51 @@
+version: "3.6"
+
+networks:
+  twitch:
+
+services:
+  rabbitmq:
+    image: masstransit/rabbitmq:latest
+    networks:
+     - twitch
+    ports:
+     - "5672:5672"
+     - "15672:15672"
+     - "15692:15692"
+    healthcheck:
+        timeout: 5s
+        interval: 5s
+        retries: 10
+        test:
+          - "CMD"
+          - "rabbitmqctl"
+          - "status" 
+  redis:
+    image: redis
+    networks:
+     - twitch
+    ports:
+      - "6379:6379"
+  mongo:
+    image: "mongo"
+    networks:
+     - twitch
+    ports:
+    - '27017-27019:27017-27019'
+  sqlserver:
+    image: masstransit/sqlserver-quartz:latest
+    networks:
+      - twitch
+    ports:
+      - 1433:1433
+  quartz:
+    image: masstransit/quartz:latest
+    environment:
+      MT_Prometheus: 'quartz'
+      MT_Scheduler: 'quartz'
+      MT_Quartz__ConnectionString: 'Server=tcp:sqlserver;Database=quartznet;Persist Security Info=False;User ID=sa;Password=Quartz!DockerP4ss;Encrypt=False;TrustServerCertificate=True;'
+    networks:
+      - twitch
+    ports:
+      - "5002:80" 
+  
