@@ -2,10 +2,8 @@
 
 namespace Contracts
 {
-    public record FulfillOrder(Guid OrderId)
+    public record FulfillOrder
     {
-        public FulfillOrder() : this(Guid.Empty)
-        {
-        }
+        public Guid OrderId { get; init; }
     }
 }

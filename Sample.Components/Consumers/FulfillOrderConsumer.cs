@@ -16,13 +16,12 @@ namespace Components.Consumers
             builder.AddActivity("AllocateInventory", new Uri("queue:allocate-inventory_execute"),
                 new AllocateInventory() {ItemNumber = "ITEM23", Quantity = 10.0m});
             builder.AddVariable("OrderId", context.Message.OrderId);
+
+            builder.AddActivity("PaymentActivity", new Uri("queue:payment_execute"),
+                new {CardNumber = "5999 4000", Amount = 99.95});
+            
             var routingSlip = builder.Build();
             await context.Execute(routingSlip);
         }
     }
 }
-
-namespace Sample.Contracts
-{
-}
-
