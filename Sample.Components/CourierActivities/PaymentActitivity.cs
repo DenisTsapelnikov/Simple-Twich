@@ -5,7 +5,7 @@ using MassTransit.Courier;
 
 namespace Components.CourierActivities
 {
-    public class PaymentActivity:IActivity<PaymentArguments, PaymentLog>
+    public class PaymentActivity : IActivity<PaymentArguments, PaymentLog>
     {
         public async Task<ExecutionResult> Execute(ExecuteContext<PaymentArguments> context)
         {

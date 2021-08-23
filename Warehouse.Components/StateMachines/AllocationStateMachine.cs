@@ -2,6 +2,7 @@
 using Automatonymous;
 using Automatonymous.CorrelationConfigurators;
 using MassTransit;
+using MassTransit.Contracts.JobService;
 using Warehouse.Contracts;
 
 namespace Warehouse.Components.StateMachines
@@ -27,24 +28,42 @@ namespace Warehouse.Components.StateMachines
                     .Schedule(HoldExpiration,
                         context => context.Init<AllocationHoldDurationExpired>(new {context.Data.AllocationId}),
                         c => c.Data.HoldDuration)
-                    .TransitionTo(Allocated));
+                    .TransitionTo(Allocated),
+                When(ReleaseRequested).TransitionTo(Released)
+            );
+
+            During(Allocated,
+                When(AllocationCreated).Schedule(HoldExpiration,
+                    context => context.Init<AllocationHoldDurationExpired>(new {context.Data.AllocationId}),
+                    c => c.Data.HoldDuration)
+            );
+
+            During(Released,
+                When(AllocationCreated)
+                    .ThenAsync(context =>
+                        Console.Out.WriteLineAsync($"Allocation was already released: {context.Data.AllocationId}"))
+                    .Finalize()
+            );
 
             During(Allocated,
                 When(HoldExpiration.Received)
                     .Then(context => { Console.WriteLine("Allocation expired: {0}", context.Data.AllocationId); })
                     .Finalize(),
                 When(ReleaseRequested)
+                    .Unschedule(HoldExpiration)
                     .Then(context =>
-                    {
-                        Console.WriteLine("Allocation release request, granted: {0}", context.Data.AllocationId);
-                    })
-                    .Finalize());
+                        Console.WriteLine("Allocation release request, granted: {0}", context.Data.AllocationId))
+                    .Finalize()
+            );
 
             SetCompletedWhenFinalized();
         }
 
         public Schedule<AllocationState, AllocationHoldDurationExpired> HoldExpiration { get; set; }
+
         public State Allocated { get; set; }
+        public State Released { get; set; }
+
         public Event<AllocationCreated> AllocationCreated { get; set; }
         public Event<ReleaseAllocationRequested> ReleaseRequested { get; set; }
     }

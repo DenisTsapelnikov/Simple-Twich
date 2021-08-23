@@ -47,7 +47,7 @@ namespace Warehouse.Service
                         configurator.AddConsumersFromNamespaceContaining<AllocateInventoryConsumer>();
                         configurator.AddMessageScheduler(schedulerEndpoint);
                         configurator
-                            .AddSagaStateMachine<AllocationStateMachine, AllocationState>()
+                            .AddSagaStateMachine<AllocationStateMachine, AllocationState>(typeof(AllocationStateMachineDefinition))
                             .MongoDbRepository(r =>
                             {
                                 r.Connection = "mongodb://127.0.0.1";

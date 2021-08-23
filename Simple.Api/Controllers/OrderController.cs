@@ -5,6 +5,7 @@ using Contracts;
 using MassTransit;
 using MassTransit.Definition;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Simple_Twich.Controllers
 {
@@ -16,15 +17,17 @@ namespace Simple_Twich.Controllers
         private readonly ISendEndpointProvider _provider;
         private readonly IRequestClient<CheckOrder> _checkOrderClient;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly ILogger<OrderController> _logger;
 
         public OrderController(IRequestClient<SubmitOrder> requestClient,
             ISendEndpointProvider provider, IRequestClient<CheckOrder> checkOrderClient,
-            IPublishEndpoint publishEndpoint)
+            IPublishEndpoint publishEndpoint, ILogger<OrderController> logger)
         {
             _requestClient = requestClient;
             _provider = provider;
             _checkOrderClient = checkOrderClient;
             _publishEndpoint = publishEndpoint;
+            _logger = logger;
         }
 
         [HttpGet]
