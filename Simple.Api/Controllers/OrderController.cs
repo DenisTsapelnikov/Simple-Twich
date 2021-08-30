@@ -46,20 +46,20 @@ namespace Simple_Twich.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put(Guid id, string customerNumber)
+        public async Task<IActionResult> Put(Guid id, string customerNumber, string paymentCardNumber)
         {
             var endpoint = await _provider.GetSendEndpoint(
                 new Uri($"exchange:{KebabCaseEndpointNameFormatter.Instance.Consumer<SubmitOrderConsumer>()}"));
             //await endpoint.Send(new SubmitOrder(id,InVar.Timestamp,customerNumber));
-            await _bus.Publish(new OrderSubmitted(id, DateTime.Now, customerNumber));
+            await _bus.Publish(new OrderSubmitted(id, DateTime.Now, customerNumber, paymentCardNumber));
             return Accepted();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(Guid id, string customerNumber)
+        public async Task<IActionResult> Post(Guid id, string customerNumber, string paymentCardNumber)
         {
             var (accepted, rejected) =
-                await _requestClient.GetResponse<OrderSubmissionAccepted, OrderSubmissionRejected>(new SubmitOrder(id,InVar.Timestamp, customerNumber));
+                await _requestClient.GetResponse<OrderSubmissionAccepted, OrderSubmissionRejected>(new SubmitOrder(id,InVar.Timestamp, customerNumber, paymentCardNumber));
             if (accepted.IsCompletedSuccessfully)
                 return Ok((await accepted).Message);
             return BadRequest(rejected.Result.Message);

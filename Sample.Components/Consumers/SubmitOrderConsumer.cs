@@ -34,7 +34,7 @@ namespace Components.Consumers
                 return;
             }
 
-            await context.Publish<OrderSubmitted>(new OrderSubmitted(context.Message.OrderId,InVar.Timestamp,context.Message.CustomerId));
+            await context.Publish<OrderSubmitted>(new OrderSubmitted(context.Message.OrderId,InVar.Timestamp,context.Message.CustomerId, context.Message.PaymentCardNumber));
 
             if (context.ResponseAddress is not null)
             {

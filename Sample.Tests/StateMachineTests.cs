@@ -33,7 +33,7 @@ namespace Sample.Tests
         public async Task Should_create_a_state_instance()
         {
             var orderId = NewId.NextGuid();
-            await _harness.Bus.Publish(new OrderSubmitted(orderId, InVar.Timestamp, "customer"));
+            await _harness.Bus.Publish(new OrderSubmitted(orderId, InVar.Timestamp, "customer", default));
 
             _harness.Published.Select<OrderSubmitted>().Any().Should().BeTrue();
             _harness.Consumed.Select<OrderSubmitted>().Any().Should().BeTrue();
@@ -48,7 +48,7 @@ namespace Sample.Tests
         public async Task Should_respond_to_status_checks()
         {
             var orderId = NewId.NextGuid();
-            await _harness.Bus.Publish(new OrderSubmitted(orderId, InVar.Timestamp, "customer"));
+            await _harness.Bus.Publish(new OrderSubmitted(orderId, InVar.Timestamp, "customer", default));
             _harness.Consumed.Select<OrderSubmitted>().Any().Should().BeTrue();
             var requestClient = await _harness.ConnectRequestClient<CheckOrder>();
             var response = await requestClient.GetResponse<OrderStatus>(new CheckOrder {OrderId = orderId});
@@ -59,7 +59,7 @@ namespace Sample.Tests
         public async Task Should_cancel_when_custom_account_closed()
         {
             var orderId = NewId.NextGuid();
-            await _harness.Bus.Publish(new OrderSubmitted(orderId, InVar.Timestamp, "customer"));
+            await _harness.Bus.Publish(new OrderSubmitted(orderId, InVar.Timestamp, "customer", default));
 
             var instanceId = await _saga.Exists(orderId, x => x.Submitted);
             instanceId.Should().NotBeNull();
@@ -74,7 +74,7 @@ namespace Sample.Tests
         public async Task Should_accept_when_order_is_accepted()
         {
             var orderId = NewId.NextGuid();
-            await _harness.Bus.Publish(new OrderSubmitted(orderId, InVar.Timestamp, "customer"));
+            await _harness.Bus.Publish(new OrderSubmitted(orderId, InVar.Timestamp, "customer", default));
 
             _saga.Created.Select(r => r.CorrelationId == orderId).Any().Should().BeTrue();
 

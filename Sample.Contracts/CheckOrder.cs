@@ -13,4 +13,10 @@ namespace Contracts
         public Guid OrderId { get; init; }
         public DateTime Time { get; init; }
     }
+    
+    public record OrderFulfillmentCompleted
+    {
+        public Guid OrderId { get; init; }
+        public DateTime Time { get; init; }
+    }
 }

@@ -3,9 +3,9 @@ using System.Drawing;
 
 namespace Contracts
 {
-    public record OrderSubmitted(Guid OrderId, DateTime Timestamp, string? CustomerNumber)
+    public record OrderSubmitted(Guid OrderId, DateTime Timestamp, string? CustomerNumber, string PaymentCardNumber)
     {
-        public OrderSubmitted() : this(Guid.Empty, DateTime.MinValue, string.Empty)
+        public OrderSubmitted() : this(Guid.Empty, DateTime.MinValue, string.Empty, string.Empty)
         {
         }
     };

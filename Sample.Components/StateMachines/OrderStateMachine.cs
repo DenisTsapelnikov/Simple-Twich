@@ -13,6 +13,7 @@ namespace Components.StateMachines
             Event(() => OrderSubmitted, e => e.CorrelateById(m => m.Message.OrderId));
             Event(() => OrderAccepted, e => e.CorrelateById(m => m.Message.OrderId));
             Event(() => FulfillmentFaulted, e => e.CorrelateById(m => m.Message.OrderId));
+            Event(() => FulfillmentCompleted, e => e.CorrelateById(m => m.Message.OrderId));
             Event(() => OrderStatusRequested, e =>
             {
                 e.CorrelateById(m => m.Message.OrderId);
@@ -35,6 +36,7 @@ namespace Components.StateMachines
                     context.Instance.SubmitDate = context.Data.Timestamp;
                     context.Instance.CustomerNumber = context.Data.CustomerNumber;
                     context.Instance.Updated = DateTime.UtcNow;
+                    context.Instance.PaymentCardNumber = context.Data.PaymentCardNumber;
                 }).TransitionTo(Submitted));
 
             During(Submitted,
@@ -47,7 +49,9 @@ namespace Components.StateMachines
             
             During(Accepted, 
                 When(FulfillmentFaulted)
-                    .TransitionTo(Faulted)
+                    .TransitionTo(Faulted),
+                When(FulfillmentCompleted)
+                    .TransitionTo(Completed)
             );
             
             DuringAny(When(OrderStatusRequested).RespondAsync(r => r.Init<OrderStatus>(
@@ -64,6 +68,7 @@ namespace Components.StateMachines
         public State? Accepted { get; private set; }
         public State Canceled { get; private set; }
         public State Faulted { get; private set; }
+        public State Completed { get; private set; }
 
         public Event<OrderSubmitted>? OrderSubmitted { get; private set; }
         public Event<OrderAccepted>? OrderAccepted { get; private set; }
@@ -71,5 +76,6 @@ namespace Components.StateMachines
 
         public Event<CustomAccountClosed> AccountClosed { get; private set; }
         public Event<OrderFulfillmentFaulted> FulfillmentFaulted { get; private set; }
+        public Event<OrderFulfillmentCompleted> FulfillmentCompleted { get; private set; }
     }
 }

@@ -13,6 +13,7 @@ namespace Components.StateMachines
         public int Version { get; set; }
         public DateTime Updated { get; set; }
         public string? CustomerNumber { get; set; }
+        public string PaymentCardNumber { get; set; }
         public DateTime? SubmitDate { get; set; }
         public string FaultReason { get; set; }
     }

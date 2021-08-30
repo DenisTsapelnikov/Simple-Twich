@@ -19,10 +19,14 @@ namespace Components.Consumers
             builder.AddVariable("OrderId", context.Message.OrderId);
 
             builder.AddActivity("PaymentActivity", new Uri("queue:payment_execute"),
-                new {CardNumber = "5999 4000", Amount = 99.95});
+                new {CardNumber = context.Message.PaymentCardNumber ?? "5999 4000", Amount = 99.95});
 
-            await builder.AddSubscription(context.SourceAddress, RoutingSlipEvents.Faulted, RoutingSlipEventContents.None,
+            await builder.AddSubscription(context.SourceAddress, 
+                RoutingSlipEvents.Faulted | RoutingSlipEvents.Supplemental, RoutingSlipEventContents.None,
                 endpoint => endpoint.Send(new OrderFulfillmentFaulted() {OrderId = context.Message.OrderId}));
+            await builder.AddSubscription(context.SourceAddress, 
+                RoutingSlipEvents.Completed | RoutingSlipEvents.Supplemental, RoutingSlipEventContents.None,
+                endpoint => endpoint.Send(new OrderFulfillmentCompleted() {OrderId = context.Message.OrderId}));
 
             var routingSlip = builder.Build();
             await context.Execute(routingSlip);
