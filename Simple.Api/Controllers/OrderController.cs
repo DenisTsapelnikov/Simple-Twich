@@ -18,16 +18,18 @@ namespace Simple_Twich.Controllers
         private readonly IRequestClient<CheckOrder> _checkOrderClient;
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly ILogger<OrderController> _logger;
+        private readonly IBus _bus;
 
         public OrderController(IRequestClient<SubmitOrder> requestClient,
             ISendEndpointProvider provider, IRequestClient<CheckOrder> checkOrderClient,
-            IPublishEndpoint publishEndpoint, ILogger<OrderController> logger)
+            IPublishEndpoint publishEndpoint, ILogger<OrderController> logger, IBus bus)
         {
             _requestClient = requestClient;
             _provider = provider;
             _checkOrderClient = checkOrderClient;
             _publishEndpoint = publishEndpoint;
             _logger = logger;
+            _bus = bus;
         }
 
         [HttpGet]
@@ -48,7 +50,8 @@ namespace Simple_Twich.Controllers
         {
             var endpoint = await _provider.GetSendEndpoint(
                 new Uri($"exchange:{KebabCaseEndpointNameFormatter.Instance.Consumer<SubmitOrderConsumer>()}"));
-            await endpoint.Send(new SubmitOrder(id,InVar.Timestamp,customerNumber));
+            //await endpoint.Send(new SubmitOrder(id,InVar.Timestamp,customerNumber));
+            await _bus.Publish(new OrderSubmitted(id, DateTime.Now, customerNumber));
             return Accepted();
         }
 

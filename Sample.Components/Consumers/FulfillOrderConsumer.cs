@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Contracts;
 using MassTransit;
 using MassTransit.Courier;
+using MassTransit.Courier.Contracts;
 using Warehouse.Contracts;
 
 namespace Components.Consumers
@@ -19,7 +20,10 @@ namespace Components.Consumers
 
             builder.AddActivity("PaymentActivity", new Uri("queue:payment_execute"),
                 new {CardNumber = "5999 4000", Amount = 99.95});
-            
+
+            await builder.AddSubscription(context.SourceAddress, RoutingSlipEvents.Faulted, RoutingSlipEventContents.None,
+                endpoint => endpoint.Send(new OrderFulfillmentFaulted() {OrderId = context.Message.OrderId}));
+
             var routingSlip = builder.Build();
             await context.Execute(routingSlip);
         }

@@ -14,5 +14,6 @@ namespace Components.StateMachines
         public DateTime Updated { get; set; }
         public string? CustomerNumber { get; set; }
         public DateTime? SubmitDate { get; set; }
+        public string FaultReason { get; set; }
     }
 }
