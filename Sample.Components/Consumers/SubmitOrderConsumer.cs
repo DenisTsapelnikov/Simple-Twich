@@ -28,18 +28,31 @@ namespace Components.Consumers
             {
                 if (context.ResponseAddress is not null)
                 {
-                    await context.RespondAsync(new OrderSubmissionRejected(context.Message.OrderId, InVar.Timestamp,
-                        context.Message.CustomerId, "It's always rejected for Nylon"));
+                    await context.RespondAsync<OrderSubmissionRejected>(new
+                    {
+                        context.Message.OrderId, InVar.Timestamp,
+                        context.Message.CustomerId, Reason = "It's always rejected for Nylon"
+                    });
                 }
+
                 return;
             }
 
-            await context.Publish<OrderSubmitted>(new OrderSubmitted(context.Message.OrderId,InVar.Timestamp,context.Message.CustomerId, context.Message.PaymentCardNumber));
+            await context.Publish<OrderSubmitted>(new
+            {
+                context.Message.OrderId,
+                InVar.Timestamp,
+                CustomerNumber = context.Message.CustomerId,
+                context.Message.PaymentCardNumber
+            });
 
             if (context.ResponseAddress is not null)
             {
-                await context.RespondAsync<OrderSubmissionAccepted>(new OrderSubmissionAccepted(context.Message.OrderId,
-                    InVar.Timestamp, context.Message.CustomerId));
+                await context.RespondAsync<OrderSubmissionAccepted>(new
+                {
+                    context.Message.OrderId,
+                    InVar.Timestamp, context.Message.CustomerId
+                });
             }
         }
     }

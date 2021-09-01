@@ -23,8 +23,12 @@ namespace Simple_Twich.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(Guid id, string customerNumber)
         {
-            await _publish.Publish(new CustomAccountClosed(id, customerNumber));
-            
+            await _publish.Publish<CustomAccountClosed>(new
+            {
+                CustomerId = id,
+                CustomerNumber = customerNumber
+            });
+
             return Ok();
         }
     }

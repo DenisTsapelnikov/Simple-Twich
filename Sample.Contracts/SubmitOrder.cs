@@ -2,22 +2,11 @@
 
 namespace Contracts
 {
-    public record SubmitOrder
+    public interface SubmitOrder
     {
-        public SubmitOrder()
-        {
-        }
-        public SubmitOrder(Guid orderId, DateTime timestamp, string customerId, string paymentCardNumber)
-        {
-            OrderId = orderId;
-            Timestamp = timestamp;
-            CustomerId = customerId;
-            PaymentCardNumber = paymentCardNumber;
-        }
-
-        public Guid OrderId { get; init; }
-        public DateTime Timestamp { get; init; }
-        public string CustomerId { get; init; }
-        public string PaymentCardNumber { get; set; }
+        Guid OrderId { get; init; }
+        DateTime Timestamp { get; init; }
+        string CustomerId { get; init; }
+        string PaymentCardNumber { get; set; }
     }
 }

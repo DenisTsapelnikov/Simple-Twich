@@ -2,8 +2,8 @@
 
 namespace Warehouse.Contracts
 {
-    public record AllocationHoldDurationExpired
+    public interface AllocationHoldDurationExpired
     {
-        public Guid AllocationId { get; init; }
+        Guid AllocationId { get; set; }
     }
 }

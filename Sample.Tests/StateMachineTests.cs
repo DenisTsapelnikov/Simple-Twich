@@ -33,7 +33,12 @@ namespace Sample.Tests
         public async Task Should_create_a_state_instance()
         {
             var orderId = NewId.NextGuid();
-            await _harness.Bus.Publish(new OrderSubmitted(orderId, InVar.Timestamp, "customer", default));
+            await _harness.Bus.Publish<OrderSubmitted>(new
+            {
+                OrderId = orderId,
+                InVar.Timestamp,
+                CustomerNumber = "customer"
+            });
 
             _harness.Published.Select<OrderSubmitted>().Any().Should().BeTrue();
             _harness.Consumed.Select<OrderSubmitted>().Any().Should().BeTrue();
@@ -48,10 +53,13 @@ namespace Sample.Tests
         public async Task Should_respond_to_status_checks()
         {
             var orderId = NewId.NextGuid();
-            await _harness.Bus.Publish(new OrderSubmitted(orderId, InVar.Timestamp, "customer", default));
+            await _harness.Bus.Publish<OrderSubmitted>(new
+            {
+                OrderId = orderId, InVar.Timestamp, CustomerNumber = "customer"
+            });
             _harness.Consumed.Select<OrderSubmitted>().Any().Should().BeTrue();
             var requestClient = await _harness.ConnectRequestClient<CheckOrder>();
-            var response = await requestClient.GetResponse<OrderStatus>(new CheckOrder {OrderId = orderId});
+            var response = await requestClient.GetResponse<OrderStatus>(new {OrderId = orderId});
             response.Message.State.Should().Be(_stateMachine.Submitted?.Name);
         }
 
@@ -59,12 +67,19 @@ namespace Sample.Tests
         public async Task Should_cancel_when_custom_account_closed()
         {
             var orderId = NewId.NextGuid();
-            await _harness.Bus.Publish(new OrderSubmitted(orderId, InVar.Timestamp, "customer", default));
+            await _harness.Bus.Publish<OrderSubmitted>(new
+            {
+                OrderId = orderId, InVar.Timestamp, CustomerNumber = "customer"
+            });
 
             var instanceId = await _saga.Exists(orderId, x => x.Submitted);
             instanceId.Should().NotBeNull();
 
-            await _harness.Bus.Publish(new CustomAccountClosed(InVar.Id, "customer"));
+            await _harness.Bus.Publish<CustomAccountClosed>(new
+            {
+                CustomerId = InVar.Id,
+                CustomerNumber = "customer"
+            });
 
             instanceId = await _saga.Exists(orderId, x => x.Canceled);
             instanceId.Should().NotBeNull();
@@ -74,14 +89,19 @@ namespace Sample.Tests
         public async Task Should_accept_when_order_is_accepted()
         {
             var orderId = NewId.NextGuid();
-            await _harness.Bus.Publish(new OrderSubmitted(orderId, InVar.Timestamp, "customer", default));
+            await _harness.Bus.Publish<OrderSubmitted>(new
+            {
+                OrderId = orderId,
+                InVar.Timestamp,
+                CustomerNumber = "customer"
+            });
 
             _saga.Created.Select(r => r.CorrelationId == orderId).Any().Should().BeTrue();
 
             var instanceId = await _saga.Exists(orderId, x => x.Submitted);
             instanceId.Should().NotBeNull();
 
-            await _harness.Bus.Publish(new OrderAccepted(orderId, InVar.Timestamp));
+            await _harness.Bus.Publish<OrderAccepted>(new {OrderId = orderId, InVar.Timestamp});
             instanceId = await _saga.Exists(orderId, x => x.Accepted);
             instanceId.Should().NotBeNull();
         }

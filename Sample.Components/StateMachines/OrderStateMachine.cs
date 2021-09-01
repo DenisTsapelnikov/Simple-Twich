@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Automatonymous;
 using Components.StateMachines.Activities;
 using Contracts;
@@ -13,6 +14,7 @@ namespace Components.StateMachines
             Event(() => OrderSubmitted, e => e.CorrelateById(m => m.Message.OrderId));
             Event(() => OrderAccepted, e => e.CorrelateById(m => m.Message.OrderId));
             Event(() => FulfillmentFaulted, e => e.CorrelateById(m => m.Message.OrderId));
+            Event(() => FulfillOrderFaulted, e => e.CorrelateById(m => m.Message.Message.OrderId));
             Event(() => FulfillmentCompleted, e => e.CorrelateById(m => m.Message.OrderId));
             Event(() => OrderStatusRequested, e =>
             {
@@ -21,7 +23,10 @@ namespace Components.StateMachines
                 {
                     if (context.RequestId.HasValue)
                     {
-                        await context.RespondAsync<OrderNotFound>(new OrderNotFound(context.Message.OrderId));
+                        await context.RespondAsync<OrderNotFound>(new
+                        {
+                            MessageOrderId = context.Message.OrderId
+                        });
                     }
                 }));
             });
@@ -46,16 +51,26 @@ namespace Components.StateMachines
                 When(OrderAccepted)
                     .Activity(selector => selector.OfType<AcceptOrderActivity>())
                     .TransitionTo(Accepted));
-            
-            During(Accepted, 
+
+            During(Accepted,
+                Ignore(OrderAccepted),
                 When(FulfillmentFaulted)
                     .TransitionTo(Faulted),
                 When(FulfillmentCompleted)
-                    .TransitionTo(Completed)
+                    .TransitionTo(Completed),
+                When(FulfillOrderFaulted)
+                    .Then(context => Console.WriteLine("Fulfill order Faulted: {0}",
+                        context.Data.Exceptions.FirstOrDefault()?.Message))
+                    .TransitionTo(Faulted)
             );
-            
+
             DuringAny(When(OrderStatusRequested).RespondAsync(r => r.Init<OrderStatus>(
-                new OrderStatus(r.Instance.CorrelationId, r.Instance.CurrentState, r.Instance.CustomerNumber))));
+                new
+                {
+                    r.Instance.CorrelationId,
+                    r.Instance.CustomerNumber,
+                    State = r.Instance.CurrentState
+                })));
 
             DuringAny(When(OrderSubmitted).Then(context =>
             {
@@ -77,5 +92,7 @@ namespace Components.StateMachines
         public Event<CustomAccountClosed> AccountClosed { get; private set; }
         public Event<OrderFulfillmentFaulted> FulfillmentFaulted { get; private set; }
         public Event<OrderFulfillmentCompleted> FulfillmentCompleted { get; private set; }
+
+        public Event<Fault<FulfillOrder>> FulfillOrderFaulted { get; private set; }
     }
 }

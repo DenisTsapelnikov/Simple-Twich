@@ -2,9 +2,9 @@
 
 namespace Warehouse.Contracts
 {
-    public record ReleaseAllocationRequested
+    public interface ReleaseAllocationRequested
     {
-        public Guid AllocationId { get; init; }  
-        public string Reason { get; init; }
+        Guid AllocationId { get; set; }  
+        string Reason { get; set; }
     }
 }

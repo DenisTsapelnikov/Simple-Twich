@@ -3,20 +3,20 @@ using MassTransit.Courier.Contracts;
 
 namespace Contracts
 {
-    public record CheckOrder
+    public interface CheckOrder
     {
-        public Guid OrderId { get; init; }
+        public Guid OrderId { get; set; }
     }
 
-    public record OrderFulfillmentFaulted
+    public interface OrderFulfillmentFaulted
     {
-        public Guid OrderId { get; init; }
-        public DateTime Time { get; init; }
+        public Guid OrderId { get; set; }
+        public DateTime Time { get; set; }
     }
     
-    public record OrderFulfillmentCompleted
+    public interface OrderFulfillmentCompleted
     {
-        public Guid OrderId { get; init; }
-        public DateTime Time { get; init; }
+        public Guid OrderId { get; set; }
+        public DateTime Time { get; set; }
     }
 }

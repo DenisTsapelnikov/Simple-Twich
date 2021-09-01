@@ -2,10 +2,10 @@
 
 namespace Contracts
 {
-    public record FulfillOrder
+    public interface FulfillOrder
     {
-        public Guid OrderId { get; init; }
-        public string? CustomerNumber { get; init; }
-        public string? PaymentCardNumber { get; init; }
+        Guid OrderId { get; set; }
+        string? CustomerNumber { get; set; }
+        string? PaymentCardNumber { get; set; }
     }
 }

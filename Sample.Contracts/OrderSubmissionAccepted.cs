@@ -2,10 +2,10 @@
 
 namespace Contracts
 {
-    public record OrderSubmissionAccepted(Guid OrderId, DateTime Timestamp, string CustomerId)
+    public interface OrderSubmissionAccepted
     {
-        public OrderSubmissionAccepted() : this(default, default, default)
-        {
-        }
+        Guid OrderId { get; set; }
+        DateTime Timestamp { get; set; }
+        string CustomerId { get; set; }
     }
 }

@@ -2,10 +2,10 @@
 
 namespace Warehouse.Contracts
 {
-    public record InventoryAllocated
+    public interface InventoryAllocated
     {
-        public Guid AllocationId { get; init; } 
-        public string ItemNumber { get; init; }
-        public decimal Quantity { get; init; }
+        Guid AllocationId { get; set; } 
+        string ItemNumber { get; set; }
+        decimal Quantity { get; set; }
     }
 }

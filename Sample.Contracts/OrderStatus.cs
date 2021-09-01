@@ -2,10 +2,10 @@
 
 namespace Contracts
 {
-    public record OrderStatus(Guid CorrelationId, string? State, string? CustomerNumber)
+    public interface OrderStatus
     {
-        public OrderStatus():this(default, default,default)
-        {
-        }
+        Guid CorrelationId { get; set; }
+        string? State { get; set; }
+        string? CustomerNumber { get; set; }
     }
 }

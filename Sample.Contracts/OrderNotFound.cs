@@ -2,10 +2,8 @@
 
 namespace Contracts
 {
-    public record OrderNotFound(Guid MessageOrderId)
+    public interface OrderNotFound
     {
-        public OrderNotFound() : this(Guid.Empty)
-        {
-        }
+        Guid MessageOrderId { get; set; }
     }
 }

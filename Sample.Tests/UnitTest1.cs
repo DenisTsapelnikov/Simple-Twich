@@ -28,8 +28,11 @@ namespace Sample.Tests
         {
             var orderId = NewId.NextGuid();
 
-            await _harness.InputQueueSendEndpoint.Send(new SubmitOrder(orderId, InVar.Timestamp,
-                CustomerId, default));
+            await _harness.InputQueueSendEndpoint.Send<SubmitOrder>(new
+            {
+                OrderId = orderId, InVar.Timestamp,
+                CustomerId
+            });
 
             _consumer.Consumed.Select<SubmitOrder>().Any().Should().BeTrue();
         }
@@ -41,8 +44,11 @@ namespace Sample.Tests
 
             var requestClient = await _harness.ConnectRequestClient<SubmitOrder>();
             var response =
-                await requestClient.GetResponse<OrderSubmissionAccepted>(new SubmitOrder(orderId, InVar.Timestamp,
-                    CustomerId, default));
+                await requestClient.GetResponse<OrderSubmissionAccepted>(new
+                {
+                    OrderId = orderId, InVar.Timestamp,
+                    CustomerId = CustomerId
+                });
 
             _consumer.Consumed.Select<SubmitOrder>().Any().Should().BeTrue();
             _harness.Sent.Select<OrderSubmissionAccepted>().Any().Should().BeTrue();
@@ -57,7 +63,8 @@ namespace Sample.Tests
             var requestClient = await _harness.ConnectRequestClient<SubmitOrder>();
             var response =
                 await requestClient.GetResponse<OrderSubmissionRejected>(
-                    new OrderSubmissionRejected() {OrderId = orderId, Timestamp = InVar.Timestamp,CustomerId = "Nylon"});
+                    new
+                        {OrderId = orderId, Timestamp = InVar.Timestamp, CustomerId = "Nylon"});
             response.Message.OrderId.Should().Be(orderId);
             _consumer.Consumed.Select<SubmitOrder>().Any().Should().BeTrue();
             _harness.Sent.Select<OrderSubmissionRejected>().Any().Should().BeTrue();
@@ -68,8 +75,11 @@ namespace Sample.Tests
         {
             var orderId = NewId.NextGuid();
 
-            await _harness.InputQueueSendEndpoint.Send(new SubmitOrder(orderId, InVar.Timestamp,
-                "customer", default));
+            await _harness.InputQueueSendEndpoint.Send<SubmitOrder>(new
+            {
+                OrderId = orderId, InVar.Timestamp,
+                CustomerId = "customer"
+            });
 
             _harness.Published.Select<OrderSubmitted>().Any().Should().BeTrue();
         }
@@ -79,7 +89,10 @@ namespace Sample.Tests
         {
             var orderId = NewId.NextGuid();
             _harness.TestTimeout = TimeSpan.FromSeconds(5);
-            await _harness.InputQueueSendEndpoint.Send(new SubmitOrder(orderId, InVar.Timestamp, "Nylon", default));
+            await _harness.InputQueueSendEndpoint.Send<SubmitOrder>(new
+            {
+                OrderId = orderId, InVar.Timestamp, CustomerId = "Nylon"
+            });
 
             _consumer.Consumed.Select<SubmitOrder>().Any().Should().BeTrue();
 

@@ -3,11 +3,11 @@ using MassTransit.Initializers.Variables;
 
 namespace Contracts
 {
-    public record OrderSubmissionRejected(Guid OrderId, TimestampVariable Timestamp, string CustomerId,
-        string Reason)
+    public interface OrderSubmissionRejected
     {
-        public OrderSubmissionRejected() : this(default, default, default, default)
-        {
-        }
+        Guid OrderId { get; set; }
+        TimestampVariable Timestamp { get; set; }
+        string CustomerId { get; set; }
+        string Reason { get; set; }
     }
 }

@@ -3,17 +3,18 @@ using System.Drawing;
 
 namespace Contracts
 {
-    public record OrderSubmitted(Guid OrderId, DateTime Timestamp, string? CustomerNumber, string PaymentCardNumber)
+    public interface OrderSubmitted
     {
-        public OrderSubmitted() : this(Guid.Empty, DateTime.MinValue, string.Empty, string.Empty)
-        {
-        }
-    };
+        public Guid OrderId { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string? CustomerNumber { get; set; }
+        public string PaymentCardNumber { get; set; }
+   }
 
-    public record CustomAccountClosed(Guid CustomerId, string CustomerNumber)
+    public interface CustomAccountClosed
     {
-        public CustomAccountClosed() : this(Guid.Empty, string.Empty)
-        {
-        }
-    };
+        public Guid CustomerId { get; set; }
+        public string CustomerNumber { get; set; }
+
+    }
 }

@@ -3,10 +3,9 @@ using MassTransit.Initializers.Variables;
 
 namespace Contracts
 {
-    public record OrderAccepted(Guid OrderId, TimestampVariable Timestamp)
+    public interface OrderAccepted
     {
-        public OrderAccepted() : this(default, default)
-        {
-        }
+        Guid OrderId { get; }
+        TimestampVariable Timestamp { get; }
     }
 }

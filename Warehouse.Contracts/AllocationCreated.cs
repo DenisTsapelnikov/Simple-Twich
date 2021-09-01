@@ -2,9 +2,9 @@
 
 namespace Warehouse.Contracts
 {
-    public record AllocationCreated
+    public interface AllocationCreated
     {
-        public Guid AllocationId { get; init; }
-        public TimeSpan HoldDuration { get; init; }
+        Guid AllocationId { get; set; }
+        TimeSpan HoldDuration { get; set; }
     }
 }

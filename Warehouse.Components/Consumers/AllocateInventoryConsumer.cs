@@ -9,9 +9,9 @@ namespace Warehouse.Components.Consumers
     {
         public async Task Consume(ConsumeContext<AllocateInventory> context)
         {
-            await context.Publish(new AllocationCreated() {AllocationId = context.Message.AllocationId, HoldDuration = TimeSpan.FromSeconds(8)});
+            await context.Publish<AllocationCreated>(new {AllocationId = context.Message.AllocationId, HoldDuration = TimeSpan.FromSeconds(8)});
 
-            await context.RespondAsync(new InventoryAllocated
+            await context.RespondAsync<InventoryAllocated>(new 
             {
                 ItemNumber = context.Message.ItemNumber,
                 Quantity = context.Message.Quantity,

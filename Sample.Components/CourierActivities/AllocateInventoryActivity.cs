@@ -35,7 +35,7 @@ namespace Components.CourierActivities
                 throw new ArgumentNullException(nameof(orderId));
             }
 
-            var response = await _requestClient.GetResponse<InventoryAllocated>(new AllocateInventory()
+            var response = await _requestClient.GetResponse<InventoryAllocated>(new
                 {Quantity = quantity, AllocationId = NewId.NextGuid(), ItemNumber = itemNumber});
 
             return context.Completed(new {AllocationId = response.Message.AllocationId});
@@ -43,7 +43,7 @@ namespace Components.CourierActivities
 
         public async Task<CompensationResult> Compensate(CompensateContext<AllocateInventoryLog> context)
         {
-            await context.Publish(new ReleaseAllocationRequested()
+            await context.Publish<ReleaseAllocationRequested>(new
                 {AllocationId = context.Log.AllocationId, Reason = "Order Faulted"});
             return context.Compensated();
         }

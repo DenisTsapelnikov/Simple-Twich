@@ -36,7 +36,7 @@ namespace Simple_Twich.Controllers
         public async Task<IActionResult> Get(Guid id)
         {
             var (found, notFound) =
-                await _checkOrderClient.GetResponse<OrderStatus, OrderNotFound>(new CheckOrder() {OrderId = id});
+                await _checkOrderClient.GetResponse<OrderStatus, OrderNotFound>(new {OrderId = id});
             if (found.IsCompletedSuccessfully)
             {
                 return Ok((await found).Message);
@@ -51,7 +51,11 @@ namespace Simple_Twich.Controllers
             var endpoint = await _provider.GetSendEndpoint(
                 new Uri($"exchange:{KebabCaseEndpointNameFormatter.Instance.Consumer<SubmitOrderConsumer>()}"));
             //await endpoint.Send(new SubmitOrder(id,InVar.Timestamp,customerNumber));
-            await _bus.Publish(new OrderSubmitted(id, DateTime.Now, customerNumber, paymentCardNumber));
+            await _bus.Publish<OrderSubmitted>(new
+            {
+                OrderId = id, Timestamp = DateTime.Now, CustomerNumber = customerNumber,
+                PaymentCardNumber = paymentCardNumber
+            });
             return Accepted();
         }
 
@@ -59,7 +63,11 @@ namespace Simple_Twich.Controllers
         public async Task<IActionResult> Post(Guid id, string customerNumber, string paymentCardNumber)
         {
             var (accepted, rejected) =
-                await _requestClient.GetResponse<OrderSubmissionAccepted, OrderSubmissionRejected>(new SubmitOrder(id,InVar.Timestamp, customerNumber, paymentCardNumber));
+                await _requestClient.GetResponse<OrderSubmissionAccepted, OrderSubmissionRejected>(new
+                {
+                    OrderId = id, InVar.Timestamp, PaymentCardNumber = paymentCardNumber,
+                    CustomerId = customerNumber
+                });
             if (accepted.IsCompletedSuccessfully)
                 return Ok((await accepted).Message);
             return BadRequest(rejected.Result.Message);
